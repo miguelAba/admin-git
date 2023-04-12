@@ -9,6 +9,9 @@ import (
 	"regexp"
 )
 
+// add cache
+// select console
+
 type Folder struct {
 	Name     string
 	Type     string
@@ -88,7 +91,7 @@ func createTree(folder Folder, language string, project string) {
 		if sub.Type == "file" {
 
 			matchLang, _ := regexp.MatchString(language, sub.Name)
-			matchProto, _ := regexp.MatchString(`\.proto`, sub.Name)
+			matchProto, _ := regexp.MatchString(".proto", sub.Name)
 
 			if matchLang || matchProto {
 
@@ -130,11 +133,12 @@ func main() {
 	project := -1
 	valid := make([]int, 0)
 
+	tree := getTree("")
+
 	fmt.Println("Select Language:")
 	fmt.Println(0, "typescript")
 	fmt.Println(1, "ruby")
 	fmt.Scanln(&language)
-	tree := getTree("")
 
 	fmt.Println("Select Project:")
 	for i, sub := range tree.Children[0].Children {
