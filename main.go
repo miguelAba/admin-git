@@ -7,8 +7,11 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+
+	"github.com/manifoldco/promptui"
 )
 
+// struct data
 // add cache
 // select console
 
@@ -30,7 +33,7 @@ func apiGit(url string) *http.Response {
 	req.Header = http.Header{
 		"Accept":               {"application/vnd.github+json"},
 		"X-GitHub-Api-Version": {"2022-11-28"},
-		"Authorization":        {"Bearer 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"},
+		"Authorization":        {"Bearer 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"},
 	}
 
 	res, err := client.Do(req)
@@ -62,7 +65,8 @@ func getFile(patch string) Folder {
 	return file
 }
 
-func getTree(patch string) Folder {
+func getFolderRepo(patch string) Folder {
+
 	name := regexp.MustCompile(`\w+$`).FindString(patch)
 	slave := Folder{Name: name, Path: patch, Type: "dir"}
 	folders := getFolder(patch)
@@ -74,7 +78,7 @@ func getTree(patch string) Folder {
 
 		}
 		if folder.Type == "dir" {
-			slave.Children = append(slave.Children, getTree(folder.Path))
+			slave.Children = append(slave.Children, getFolderRepo(folder.Path))
 		}
 	}
 	return slave
@@ -128,40 +132,73 @@ func Contains[T comparable](s []T, e T) bool {
 	return false
 }
 
-func main() {
-	language := -1
-	project := -1
-	valid := make([]int, 0)
+func getLang() string {
+	items := []string{"Typescript", "Ruby"}
 
-	tree := getTree("")
+	prompt := promptui.Select{
+		Label: "Selecciona el lenguaje de programación",
+		Items: items,
+		Size:  2,
+		Templates: &promptui.SelectTemplates{
+			Active:   "> {{ . | cyan }}",
+			Inactive: "  {{ . | white }}",
+			Selected: "{{ . | green }}",
+		},
+	}
 
-	fmt.Println("Select Language:")
-	fmt.Println(0, "typescript")
-	fmt.Println(1, "ruby")
-	fmt.Scanln(&language)
+	_, lang, err := prompt.Run()
 
-	fmt.Println("Select Project:")
-	for i, sub := range tree.Children[0].Children {
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return ""
+	}
+
+	if lang == "Typescript" {
+		lang = ".ts"
+	} else if lang == "Ruby" {
+		lang = ".rb"
+	}
+
+	return lang
+}
+
+func getProjects(tree Folder) string {
+
+	items := []string{}
+	for _, sub := range tree.Children[0].Children {
 		if sub.Type == "dir" {
-			valid = append(valid, i)
-			fmt.Println(i, sub.Name)
+			items = append(items, sub.Name)
 		}
 	}
-	fmt.Scanln(&project)
 
-	if Contains(valid, project) {
-		lang := ""
-		if language == 0 {
-			lang = ".ts"
-		} else if language == 1 {
-			lang = ".rb"
-		}
-
-		proj := tree.Children[0].Children[project].Name
-		createTree(tree, lang, proj)
-	} else {
-		fmt.Println("Invalid Project")
-		os.Exit(1)
+	prompt := promptui.Select{
+		Label: "Selecciona el lenguaje de programación",
+		Items: items,
+		Size:  len(items),
+		Templates: &promptui.SelectTemplates{
+			Active:   "> {{ . | cyan }}",
+			Inactive: "  {{ . | white }}",
+			Selected: "{{ . | green }}",
+		},
 	}
 
+	_, lang, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return ""
+	}
+
+	if lang == "Typescript" {
+		lang = ".ts"
+	} else if lang == "Ruby" {
+		lang = ".rb"
+	}
+
+	return lang
+}
+
+func main() {
+	tree := getFolderRepo("")
+	createTree(tree, getLang(), getProjects(tree))
 }

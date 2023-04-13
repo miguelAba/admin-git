@@ -1,0 +1,25 @@
+# Archivos de construcción y ejecutables
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Archivos de registro y depuración
+*.log
+*.out
+*.prof
+*.test
+
+# Archivos de configuración
+.env
+.env.local
+.env.*.local
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Directorios de dependencias y módulos
+vendor/
