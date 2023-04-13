@@ -23,3 +23,4 @@ bin/
 
 # Directorios de dependencias y módulos
 vendor/
+protos/
