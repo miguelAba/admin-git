@@ -2,7 +2,9 @@
 
 This console program is designed to allow the sharing of .proto files between different teams in the company, regardless of the programming language used.
 
-## Running the app
+![alt text](./image.png "Title")
+
+## Build the app
 
 ```bash
 # windows
